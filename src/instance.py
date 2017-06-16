@@ -54,7 +54,6 @@ class Instance():
         sleep(0.5)
 
     def logout(self):
-#         super(TestCreateInstance, cls).tearDownClass()
         driver = self.driver
         ''' clear env '''
 #         sleep(3)
@@ -134,10 +133,7 @@ class Instance():
             if td.text == "没有找到匹配的记录":
                 return
             
-#             checkInp = td.find_element_by_xpath(".//td[1]/input")
             checkLable = td.find_element_by_xpath(".//td[1]/label")
-#             status = td.find_element_by_xpath('.//td[2]/span[@title="运行中"]')
-#             status = td.find_element_by_xpath('.//td[2]/span')
             inc = td.find_element_by_xpath('.//td[3]/div')
             if vmname != None and inc.text != vmname:
                 continue
@@ -169,9 +165,6 @@ class Instance():
             if td.text == "没有找到匹配的记录":
                 return False
             
-            checkInp = td.find_element_by_xpath(".//td[1]/input")
-            checkLable = td.find_element_by_xpath(".//td[1]/label")
-#             status = td.find_element_by_xpath('.//td[2]/span[@title="运行中"]')
             status = td.find_element_by_xpath('.//td[2]/span')
             instanceName = td.find_element_by_xpath('.//td[3]/div')
             img = td.find_element_by_xpath('.//td[5]/div').text
@@ -185,24 +178,17 @@ class Instance():
             except SEE.NoSuchElementException :
                 print('vm[%s] has no public ip' %(vmname))
                 return False
-
-#             td.click()
-            print(checkInp.id)
-            print(status.get_attribute('title'))
-            print(instanceName.text)
-            print(img)
-            print(iip)
-            print(pip)
-#             instanceName.find_element_by_xpath('.//*[@class="host-list-detail-link"]').click()
-#             sleep(3)
-#             driver.back()
-            ''' only lable can be multi select ''' 
-#             checkLable.click()
+            
             if self.check.check_ip(pip, 22, 'root', self.vmpw, iip):
                 print("public ip connected !")
                 return True
             else :
                 print("public ip not connected !")
+                print(status.get_attribute('title'))
+                print(instanceName.text)
+                print(img)
+                print(iip)
+                print(pip)
                 return False
     
     def get_instance_status(self, vmname):
@@ -250,13 +236,8 @@ class Instance():
             if td.text == "没有找到匹配的记录":
                 return False
             
-#           checkInp = td.find_element_by_xpath(".//td[1]/input")
-#             checkLable = td.find_element_by_xpath(".//td[1]/label")
-#             status = td.find_element_by_xpath('.//td[2]/span[@title="运行中"]')
             status = td.find_element_by_xpath('.//td[2]/span')
             instanceName = td.find_element_by_xpath('.//td[3]/div')
-#             img = td.find_element_by_xpath('.//td[5]/div').text
-#             iip = td.find_element_by_xpath('.//td[10]/div').text
             if instanceName.text != vmname:
                 continue
             if status.get_attribute('title') != '运行中' :
@@ -289,13 +270,8 @@ class Instance():
             if td.text == "没有找到匹配的记录":
                 return False
             
-#           checkInp = td.find_element_by_xpath(".//td[1]/input")
-#             checkLable = td.find_element_by_xpath(".//td[1]/label")
-#             status = td.find_element_by_xpath('.//td[2]/span[@title="运行中"]')
             status = td.find_element_by_xpath('.//td[2]/span')
             instanceName = td.find_element_by_xpath('.//td[3]/div')
-#             img = td.find_element_by_xpath('.//td[5]/div').text
-#             iip = td.find_element_by_xpath('.//td[10]/div').text
             if instanceName.text != vmname:
                 continue
             if status.get_attribute('title') != '运行中' :
@@ -400,13 +376,8 @@ class Instance():
             if td.text == "没有找到匹配的记录":
                 return False
             
-#           checkInp = td.find_element_by_xpath(".//td[1]/input")
-#             checkLable = td.find_element_by_xpath(".//td[1]/label")
-#             status = td.find_element_by_xpath('.//td[2]/span[@title="运行中"]')
             status = td.find_element_by_xpath('.//td[2]/span')
             instanceName = td.find_element_by_xpath('.//td[3]/div')
-#             img = td.find_element_by_xpath('.//td[5]/div').text
-#             iip = td.find_element_by_xpath('.//td[10]/div').text
             if instanceName.text != vmname:
                 continue
             if status.get_attribute('title') != '运行中' :
