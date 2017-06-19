@@ -1,10 +1,5 @@
- #!/usr/bin/python
- # -*- coding:utf-8 -*-
- # cp@chenpeng.info
- 
-import os
+# coding=utf-8
 import paramiko
-import cmd
 
 
 class Check:
@@ -79,6 +74,7 @@ class Check:
         out = stdout.read()
         ssh.close()
         return True
+
 
 if __name__ == "__main__":
     import doctest

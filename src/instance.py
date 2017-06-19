@@ -2,41 +2,47 @@
 from selenium import webdriver
 from time import sleep
 from random import randint
-import check
 from selenium.common import exceptions as SEE
 import pip
+import check
+import config
 
 class Instance():
     '''
     >>> pp = "http://100.86.0.1"
-        
-    >>> hh = "/dashboard/host/#host"
     
     >>> vm = 'aaa'
         
-    >>> inc = Instance(pp, hh) 
-        
-    >>> inc.vmlist.append('aaa')
-        
+    >>> inc = Instance(pp) 
+                
     >>> inc.login()
     
-    >>> inc.start_instance(vm)
+    >>> inc.shutdownOuter(vm)
+    True
+    >>> sleep(30)
+    
+    >>> inc.startInstance(vm)
     True
     >>> sleep(60)
-    >>> inc.restart_instance_outer(vm)
+    
+    >>> inc.restartInstanceOuter(vm)
+    True
+    >>> sleep(30)
+    
+    >>> inc.shutdownOuterForce(vm)
     True
     >>> inc.logout()
         
     '''
-    def __init__(self, plate, host):
+    def __init__(self, plate):
         self.plate = plate
-        self.host = host
-        
-        self.vmbase = "test"
-        self.vmpw = "admin123"
-        self.vmlist = []
+        self.host = config.host
+        self.disk = config.disk
+        self.vmbase = config.vmbase
+        self.vmpw = config.vmpw
         self.vmcnt = randint(2,100)
-        self.check = check.Check();
+        self.check = check.Check()
+        self.vmlist = self.getInstanceList()
 #         self.driver = webdriver.Edge()
         self.driver = webdriver.Chrome()
 
@@ -58,8 +64,37 @@ class Instance():
         ''' clear env '''
 #         sleep(3)
         driver.quit()
+      
+    def getInstanceList(self):
+        ''' 
+        get instance list 
+        '''
+        driver = webdriver.Chrome()       
+        driver.get(self.plate)
+        driver.delete_all_cookies()
+        driver.refresh()
         
-    def create_instance(self):
+        ''' login '''
+        driver.find_element_by_id("id_username").send_keys("zzy@sangfor.com")
+        driver.find_element_by_id("id_password").send_keys("Admin12345")
+        driver.find_element_by_id("loginBtn").click()
+        sleep(0.5)
+        
+        # go to plate page
+        driver.get(self.plate + self.host)
+        sleep(2)
+        vmList = []
+        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[2]/div[2]/div[2]/table/tbody/tr')
+        for td in rd:
+            ''' no instance continue'''
+            if td.text == "没有找到匹配的记录":
+                return vmList
+            instanceName = td.find_element_by_xpath('.//td[3]/div').text
+            vmList.append(instanceName)
+        driver.quit()
+        return vmList
+    
+    def createInstance(self):
         '''
         create instance
         '''
@@ -69,25 +104,25 @@ class Instance():
         driver.get(self.plate + self.host)
         sleep(2)
         
-        # click new instance
+        ''' click new instance '''
 #         driver.find_element_by_id("plate-btn-create-computer").click()  
         driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/button[1]').click()
         sleep(1)
         
-        # select image
+        ''' select image '''
         driver.find_element_by_xpath("/html/body/div[5]/div/div[2]/div/div[2]/div[2]/div/div[1]/div/div/div[1]/div[3]/ul/li[1]/div").click()
 #         driver.find_element_by_xpath("//*[@class='plate-add-image-detail-panel plate-add-image-common-panel']/ul/li[1]/div").click()
         
-        # click next after image
+        ''' click next after image '''
         driver.find_element_by_xpath("//*[@class='btn btn-primary btn-submit']").click()
 #         driver.find_element_by_xpath("//*[@id='site-my-list']/ul/li[2]/div").click()
         
-        # click next after configuration
+        ''' click next after configuration '''
         driver.find_element_by_xpath('html/body/div[5]/div/div[2]/div/div[3]/div/div/button[2]').click()
         # click next after networking
         driver.find_element_by_xpath('html/body/div[5]/div/div[2]/div/div[3]/div/div/button[2]').click()
         
-        # click go after base inrormation: instance name, pw
+        ''' click go after base inrormation: instance name, pw '''
         name = driver.find_element_by_xpath('//input[@class="form-control" and @name="name" and @data-fv-field="name" and @type="text"]')
         vmname = self.vmbase+str(self.vmcnt)
         name.clear()
@@ -115,7 +150,7 @@ class Instance():
         print(self.vmlist)
         return vmname
     
-    def delete_instance(self, vmname):
+    def deleteInstance(self, vmname):
         ''' 
         delete instance 
         '''
@@ -191,7 +226,7 @@ class Instance():
                 print(pip)
                 return False
     
-    def get_instance_status(self, vmname):
+    def getInstanceStatus(self, vmname):
         ''' 
         get instance status 
         '''
@@ -209,16 +244,16 @@ class Instance():
             if td.text == "没有找到匹配的记录":
                 return None
             
-            status = td.find_element_by_xpath('.//td[2]/span')
-            instanceName = td.find_element_by_xpath('.//td[3]/div')
+            status = td.find_element_by_xpath('.//td[2]/span').get_attribute('title')
+            instanceName = td.find_element_by_xpath('.//td[3]/div').text
             
-            if instanceName.text != vmname:
+            if instanceName != vmname:
                 continue
             
-            return status.text
+            return status
         return None
     
-    def shutdown_instance_inner(self, vmname):
+    def shutdownInner(self, vmname):
         ''' 
         shutdown instance inner
         '''
@@ -252,7 +287,7 @@ class Instance():
             return True
         return False
     
-    def shutdown_instance_outer(self, vmname):
+    def shutdownOuter(self, vmname):
         ''' 
         shutdown instance outer
         '''
@@ -268,13 +303,15 @@ class Instance():
         for td in rd:
             ''' no instance continue'''
             if td.text == "没有找到匹配的记录":
+                print('there is no vm')
                 return False
             
-            status = td.find_element_by_xpath('.//td[2]/span')
             instanceName = td.find_element_by_xpath('.//td[3]/div')
             if instanceName.text != vmname:
                 continue
-            if status.get_attribute('title') != '运行中' :
+            status = td.find_element_by_xpath('.//td[2]/span').get_attribute('title')
+            if status != '运行中' :
+                print('vm[%s] is still running' %(instanceName))
                 return False
             
             td.click()
@@ -284,10 +321,43 @@ class Instance():
             driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
             sleep(3)
             return True
-        
+        print('vm[%s] is not find' %(vmname))
         return False
     
-    def start_instance(self, vmname):
+    def shutdownOuterForce(self, vmName):
+        ''' 
+        shutdown instance outer
+        '''
+        assert len(self.vmlist) != 0
+        assert vmName in self.vmlist
+        
+        driver = self.driver
+        # go to plate page
+        driver.get(self.plate + self.host)
+        sleep(2)
+
+        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[2]/div[2]/div[2]/table/tbody/tr')
+        for td in rd:
+            ''' no instance continue'''
+            if td.text == "没有找到匹配的记录":
+                return False
+            
+            status = td.find_element_by_xpath('.//td[2]/span')
+            instanceName = td.find_element_by_xpath('.//td[3]/div')
+            if instanceName.text != vmName:
+                continue
+            if status.get_attribute('title') != '运行中' :
+                return False
+            
+            td.click()
+            sleep(0.5)
+            driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/div[1]/button').click()
+            sleep(0.5)
+            driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/div[1]/ul/li[2]/button').click()
+            sleep(1)
+            return True
+    
+    def startInstance(self, vmname):
         ''' 
         start instance in page        
         '''
@@ -324,7 +394,7 @@ class Instance():
         print ('no match')
         return False
     
-    def restart_instance_inner(self, vmname):
+    def restartInstanceInner(self, vmname):
         ''' 
         restart instance inner 
         '''
@@ -358,9 +428,9 @@ class Instance():
             return True
         return False
     
-    def restart_instance_outer(self, vmname):
+    def restartInstanceOuter(self, vmname):
         ''' 
-        shutdown instance outer
+        restart instance outer
         '''
         assert len(self.vmlist) != 0
         assert vmname in self.vmlist
@@ -386,12 +456,32 @@ class Instance():
             td.click()
             sleep(0.5)
             driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/div[1]/button').click()
-            sleep(1)
+            sleep(0.5)
             driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/div[1]/ul/li[1]/button').click()
-            sleep(3)
+            sleep(1)
             return True
         
         return False
+    
+    def createBackup(self):
+        #TODO: fix me
+        pass
+    
+    def mountVolume(self):
+        #TODO: fix me
+        pass
+    
+    def umountVolume(self):
+        #TODO: fix me
+        pass
+    
+    def configPublicIP(self):
+        #TODO: fix me
+        pass
+    
+    def configSubNet(self):
+        #TODO: fix me
+        pass
 
 
 if __name__ == "__main__":

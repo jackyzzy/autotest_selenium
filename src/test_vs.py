@@ -1,17 +1,15 @@
 # coding=utf-8
 from time import sleep
 import unittest
-import  instance
-
-plate = "http://100.86.0.1"
-host = "/dashboard/host/#host"
-disk = "/dashboard/storage/disk/#disk"
+import instance
+import volume
+import config
 
 class TestInstance(unittest.TestCase):
     
     @classmethod
     def setUpClass(self):
-        self.instance = instance.Instance(plate, host)
+        self.instance = instance.Instance(config.plate)
         self.instance.login()
 
     @classmethod
