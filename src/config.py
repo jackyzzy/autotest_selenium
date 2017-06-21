@@ -4,9 +4,9 @@ host = "/dashboard/host/#host"
 disk = "/dashboard/storage/disk/#disk"
 
 userName = "zzy@sangfor.com"
-passwd = "Admin12345"
+passWD = "Admin12345"
 
-vmbase = "autoinstance"
-vmpw = "admin123"
+vmBase = "autoinstance"
+vmPWD = "admin123"
 
 volBase = "autovolume"

@@ -2,7 +2,6 @@
 from time import sleep
 import unittest
 import instance
-import volume
 import config
 
 class TestInstance(unittest.TestCase):
