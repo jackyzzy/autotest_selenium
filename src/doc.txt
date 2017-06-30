@@ -1,0 +1,13 @@
+    >>> pp = "http://100.1.22.1"
+    
+    >>> vol = 'vvv3'
+    
+    >>> print("in doc file")
+    in doc file
+    >>> bkp = Backup(pp)
+    
+    >>> print(pp.chainList)
+    
+    >>> print(pp.policyList)
+    
+    >>> bkp.createPolicy("sdlkfj", "sdkfj")

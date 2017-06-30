@@ -354,7 +354,10 @@ class Volume():
         sleep(0.5)
         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
         sleep(1)
-        return True       
+        return True
+    
+    def mountBackupPolicy(self):
+        pass
 
 
 if __name__ == "__main__":
