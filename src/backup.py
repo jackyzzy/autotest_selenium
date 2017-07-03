@@ -2,6 +2,7 @@
 from selenium import webdriver
 from time import sleep
 import config
+from dask.array.numpy_compat import full
 
 class Backup():
     ''' Backup test case
@@ -13,8 +14,9 @@ class Backup():
     
     >>> bkp.login()
     
-    >>> bkp.policyMountToVolume(policy)
-    
+    >>> bkp.policyMountToVolume(policy, '数据盘', 'ttt')
+    数据盘：ttt
+    True
     >>> bkp.logout()
     
     '''
@@ -142,7 +144,7 @@ class Backup():
         self.policyList.remove(policyName)
         return True
     
-    def policyMountToVolume(self, policyName):
+    def policyMountToVolume(self, policyName, volType, volName, all = False):
         ''' mount policy onto volume, in policy page '''
         assert policyName != None and len(self.policyList) != 0
         
@@ -169,13 +171,21 @@ class Backup():
         driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[1]/button[2]').click()
         sleep(0.5)
         
-        ul = driver.find_elements_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[3]/ul')
-        lis = ul.find_elements_by_xpath('.//li')
-        for li in lis:
-            name = li.find_element_by_xpath('.//div').get_attribute('title')
-            print(name)
+        if all :
+            driver.find_element_by_class_name('backup-disk-select-all').click()
+            sleep(0.5)
+            driver.find_element_by_xpath("//button[contains(@class,'btn btn-submit btn-primary')]").click()
+            sleep(1)
+            return True
+        fullName = '%s：%s' %(volType, volName)
+#         print(fullName)
+#         driver.find_element_by_xpath("//span[contains(.,%s)]" %(fullName)))
+        target = driver.find_element_by_xpath("//span[contains(.,'数据盘：ttt')]").text
+        print(target)
         
-    
+        sleep(1)
+        return True
+        
     def getChainList(self):
         ''' get backup chain list '''
         driver = webdriver.Chrome()
