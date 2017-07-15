@@ -90,7 +90,7 @@ class TestInstance(unittest.TestCase):
     def test_03_start_poweroff_restart_outer(self):
         curFunc = self.getFuncName()
         vm = self.instance.createInstance()
-        self.assertIsNotNone(vm, 'create vm fail in %S' %(curFunc))
+        self.assertIsNotNone(vm, 'create vm fail in %s' %(curFunc))
         sleep(30)
         
         #TODO: check ping
@@ -181,7 +181,7 @@ class TestInstance(unittest.TestCase):
         self.assertTrue(self.instance.mountVolume(vmname, high_volume), 'fail to mount volume[%s] to instance[%s] in %s' %(high_volume, vmname, curFunc))
         sleep(20)
         
-        self.assertTrue(self.instance.startInstance(vmname), 'fail to start instance in %s' %(vmname, curFunc))
+        self.assertTrue(self.instance.startInstance(vmname), 'fail to start instance[%s] in %s' %(vmname, curFunc))
         sleep(60)
         #TODO: check ping   
         
@@ -281,7 +281,7 @@ class TestInstance(unittest.TestCase):
         if self.instance.getInstanceStatus(vm) != '运行中':
             self.assertTrue(self.instance.startInstance(vm), 'fail to start instance[%s] in %s' %(vm, curFunc))
             sleep(100)
-        
+        sleep(60)
         self.assertTrue(self.instance.vmPingHost(vm), 'cannot ping from instance[%s] to host[%s] in %s' %(vm, envConfig.ip, curFunc))
     
     def test_21_write_read_file(self):
