@@ -1,14 +1,14 @@
 # coding=utf-8
 from time import sleep
+import envConfig
 import unittest
 import instance
-import config
 
 class TestInstance(unittest.TestCase):
     
     @classmethod
     def setUpClass(self):
-        self.instance = instance.Instance(config.plate)
+        self.instance = instance.Instance(envConfig.plate)
         self.instance.login()
 
     @classmethod
@@ -16,12 +16,12 @@ class TestInstance(unittest.TestCase):
         self.instance.logout()
         
     def test_01_create_del_instance(self):
-        vm = self.instance.create_instance()
+        vm = self.instance.createInstance()
         sleep(30)
 #         vm = "test"
 #         self.vmlist.append(vm)
         self.instance.connect(vm)
-        self.instance.delete_instance(vm)
+        self.instance.deleteInstance(vm)
     
     def test_02_start_powoff_restart_inner(self):
         vm = self.instance.create_instance()
@@ -72,6 +72,3 @@ class TestInstance(unittest.TestCase):
             return False
         
         return True
-
-if __name__ == '__main__':
-    unittest.main()

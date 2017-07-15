@@ -3,20 +3,20 @@ from selenium import webdriver
 from time import sleep
 from random import randint
 from selenium.common import exceptions as SEE
+import envConfig
+import envCheck
 import pip
-import check
-import config
 import volume
 
 class Instance():
     '''
-    >>> pp = "http://100.86.0.1"
+    >>> pp = "http://100.1.22.1"
             
     >>> inc = Instance(pp) 
                 
     >>> inc.login()
     
-    >>> vm = inc.createInstance('bbb')
+    >>> vm = inc.createInstance('bbb', 'cen')
     bbb
     >>> sleep(60)
     
@@ -99,15 +99,15 @@ class Instance():
         
     '''
     def __init__(self, plate):
-        self.plate = plate
-        self.host = config.host
-        self.disk = config.disk
-        self.userName = config.userName
-        self.passWD = config.passWD
-        self.vmbase = config.vmBase
-        self.vmpw = config.vmPWD
+        self.plate = envConfig.plate
+        self.host = '/dashboard/host/#host'
+        self.disk = '/dashboard/storage/disk/#disk'
+        self.userName = envConfig.userName
+        self.passWD = envConfig.passWD
+        self.vmbase = envConfig.vmBase
+        self.vmpw = envConfig.vmPWD
         self.vmcnt = randint(2,100)
-        self.check = check.Check()
+        self.check = envCheck.Check(envConfig.ip)
         self.vmlist = self.getInstanceList()
         self.driver = webdriver.Chrome()
 
@@ -153,7 +153,7 @@ class Instance():
         driver.quit()
         return vmList
     
-    def createInstance(self, vmName = None):
+    def createInstance(self, vmName = None, image = 'cen'):
         ''' create instance '''
         driver = self.driver
         
@@ -165,9 +165,23 @@ class Instance():
         driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/button[1]').click()
         sleep(1)
         
-        ''' select image '''
-        driver.find_element_by_xpath("/html/body/div[5]/div/div[2]/div/div[2]/div[2]/div/div[1]/div/div/div[1]/div[3]/ul/li[1]/div").click()
-#         driver.find_element_by_xpath("//*[@class='plate-add-image-detail-panel plate-add-image-common-panel']/ul/li[1]/div").click()
+        if image != None:
+            ''' select image '''
+            lis = driver.find_elements_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[2]/div/div[1]/div/div/div[1]/div[3]/ul/li')
+            for li in lis:
+                imageName = li.find_element_by_xpath('.//div').text.lower()
+                if image in imageName:
+                    li.click()
+                    sleep(0.5)
+                    break
+            else:
+                print('image[%s] is not find in image List' %(image))
+                return None
+        else:
+            ''' use default image '''
+#             driver.find_element_by_xpath("//*[@class='plate-add-image-detail-panel plate-add-image-common-panel']/ul/li[1]/div").click()
+            driver.find_element_by_xpath("/html/body/div[5]/div/div[2]/div/div[2]/div[2]/div/div[1]/div/div/div[1]/div[3]/ul/li[1]/div").click()
+            sleep(0.5)
         
         ''' click next after image '''
         driver.find_element_by_xpath("//*[@class='btn btn-primary btn-submit']").click()
@@ -195,7 +209,6 @@ class Instance():
         sleep(10)
         self.vmlist.append(vmName)
         self.vmcnt = self.vmcnt + 1
-        print(vmName)
         return vmName
     
     def deleteInstance(self, vmName):
@@ -229,9 +242,9 @@ class Instance():
         sleep(1)
         self.vmlist.remove(vmName)
         return True
-            
-    def connect(self, vmName):
-        ''' connect to vm '''
+    
+    def getInstancePublicIp(self, vmName):
+        ''' get vm outer ip '''
         assert len(self.vmlist) != 0
         assert vmName in self.vmlist
         
@@ -252,26 +265,15 @@ class Instance():
                 return False
             try : 
                 pip = td.find_element_by_xpath('.//td[11]/div').text
+                return pip
             except SEE.NoSuchElementException :
                 print('vm[%s] has no public ip' %(vmName))
-                return False
-            iip = td.find_element_by_xpath('.//td[10]/div').text
-            if self.check.check_ip(pip, 22, 'root', self.vmpw, iip):
-                print("public ip connected !")
-                return True
-            else :
-                img = td.find_element_by_xpath('.//td[5]/div').text
-                print("public ip not connected !")
-                print(status.get_attribute('title'))
-                print(instanceName.text)
-                print(img)
-                print(iip)
-                print(pip)
-                return False
+                return None
+    
             break
         else:
             print('vm[%s] is not find in instance page' %(vmName))
-            return False
+            return None
     
     def getInstanceStatus(self, vmname):
         ''' get instance status '''
@@ -319,7 +321,7 @@ class Instance():
             except SEE.NoSuchElementException :
                 print('vm[%s] has no public ip' %(vmName))
                 return False
-            return self.check.shutdown_inner(pip, 22, 'root', self.vmpw)
+            return self.check.shutdownInner(pip, 22, 'root', self.vmpw)
         else:
             print('vm[%s] is not find in instance page' %(vmName))
             return False
@@ -387,6 +389,8 @@ class Instance():
         driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/div[1]/button').click()
         sleep(0.5)
         driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/div[1]/ul/li[2]/button').click()
+        sleep(0.5)
+        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
         sleep(1)
         return True
     
@@ -448,7 +452,7 @@ class Instance():
             except SEE.NoSuchElementException :
                 print('vm[%s] has no public ip' %(vmName))
                 return False
-            return self.check.restart_inner(pip, 22, 'root', self.vmpw)
+            return self.check.restartInner(pip, 22, 'root', self.vmpw)
         else:
             print('vm[%s] is not find in instance page' %(vmName))
             return False
@@ -641,7 +645,144 @@ class Instance():
         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
         sleep(1)
         return True
+
+    def connect(self, vmName):
+        ''' connect to vm '''
+        assert len(self.vmlist) != 0
+        assert vmName in self.vmlist
+        
+        driver = self.driver
+        driver.get(self.plate + self.host)
+        sleep(2)
+        
+        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[2]/div[2]/div[2]/table/tbody/tr')
+        if rd[0].text == "没有找到匹配的记录":
+            print('instance list is empty')
+            return False
+        for td in rd:
+            instanceName = td.find_element_by_xpath('.//td[3]/div').text
+            if instanceName != vmName:
+                continue
+            status = td.find_element_by_xpath('.//td[2]/span').get_attribute('title')
+            if status != '运行中' :
+                return False
+            try : 
+                pip = td.find_element_by_xpath('.//td[11]/div').text
+            except SEE.NoSuchElementException :
+                print('vm[%s] has no public ip' %(vmName))
+                return False
+            iip = td.find_element_by_xpath('.//td[10]/div').text
+            if self.check.checkInnerIP(pip, 22, 'root', self.vmpw, iip):
+#                 print("public ip connected !")
+                return True
+            else :
+                img = td.find_element_by_xpath('.//td[5]/div').text
+                print("public ip not connected !")
+                print(status)
+                print(instanceName)
+                print(img)
+                print(iip)
+                print(pip)
+                return False
+            break
+        else:
+            print('vm[%s] is not find in instance page' %(vmName))
+            return False
     
+    def vmPingHost(self, vmName):
+        ''' ping from vm to host '''
+        assert len(self.vmlist) != 0
+        assert vmName in self.vmlist
+        
+        driver = self.driver
+        driver.get(self.plate + self.host)
+        sleep(2)
+        
+        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[2]/div[2]/div[2]/table/tbody/tr')
+        if rd[0].text == "没有找到匹配的记录":
+            print('instance list is empty')
+            return False
+        for td in rd:
+            instanceName = td.find_element_by_xpath('.//td[3]/div').text
+            if instanceName != vmName:
+                continue
+            status = td.find_element_by_xpath('.//td[2]/span').get_attribute('title')
+            if status != '运行中' :
+                return False
+            try : 
+                pip = td.find_element_by_xpath('.//td[11]/div').text
+            except SEE.NoSuchElementException :
+                print('vm[%s] has no public ip' %(vmName))
+                return False
+            vmcheck = envCheck.Check(pip)
+            if vmcheck == None:
+                print('fail to connect vm[%s] and then init vmCheck.' %(vmName))
+                return False
+            return vmcheck.ping(envConfig.ip)
+        else:
+            print('vm[%s] is not find in instance page' %(vmName))
+            return False
+
+    def vmWriteLine(self, vmName, line = 'aaaaaa', file = 'aaa.txt'):
+        ''' write line to file on vm '''
+        assert len(self.vmlist) != 0
+        assert vmName in self.vmlist
+        
+        driver = self.driver
+        driver.get(self.plate + self.host)
+        sleep(2)
+        
+        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[2]/div[2]/div[2]/table/tbody/tr')
+        if rd[0].text == "没有找到匹配的记录":
+            print('instance list is empty')
+            return False
+        for td in rd:
+            instanceName = td.find_element_by_xpath('.//td[3]/div').text
+            if instanceName != vmName:
+                continue
+            status = td.find_element_by_xpath('.//td[2]/span').get_attribute('title')
+            if status != '运行中' :
+                return False
+            try : 
+                pip = td.find_element_by_xpath('.//td[11]/div').text
+            except SEE.NoSuchElementException :
+                print('vm[%s] has no public ip' %(vmName))
+                return False
+            return self.check.writeLine(pip, 'root', self.vmpw, line, file)
+        else:
+            print('vm[%s] is not find in instance page' %(vmName))
+            return False
+        
+    def vmReadLine(self, vmName, file = 'aaa.txt'):
+        ''' read line from file on vm '''
+        assert len(self.vmlist) != 0
+        assert vmName in self.vmlist
+        
+        driver = self.driver
+        driver.get(self.plate + self.host)
+        sleep(2)
+        
+        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[2]/div[2]/div[2]/table/tbody/tr')
+        if rd[0].text == "没有找到匹配的记录":
+            print('instance list is empty')
+            return None
+        for td in rd:
+            instanceName = td.find_element_by_xpath('.//td[3]/div').text
+            if instanceName != vmName:
+                continue
+            status = td.find_element_by_xpath('.//td[2]/span').get_attribute('title')
+            if status != '运行中' :
+                return None
+            try : 
+                pip = td.find_element_by_xpath('.//td[11]/div').text
+            except SEE.NoSuchElementException :
+                print('vm[%s] has no public ip' %(vmName))
+                return None
+            return self.check.readLine(pip, 'root', self.vmpw, file)
+        else:
+            print('vm[%s] is not find in instance page' %(vmName))
+            return None
+
     def configPublicIP(self):
         ''' config public ip into instance '''
         #TODO: fix me

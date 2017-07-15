@@ -1,8 +1,7 @@
 # coding=utf-8
 from selenium import webdriver
 from time import sleep
-import config
-from dask.array.numpy_compat import full
+import envConfig
 
 class Backup():
     ''' Backup test case
@@ -14,19 +13,20 @@ class Backup():
     
     >>> bkp.login()
     
-    >>> bkp.policyMountToVolume(policy, '数据盘', 'ttt')
-    数据盘：ttt
+    >>> bkp.addBackupPoint('aaa-data-58588413', 'ppp')
     True
+    >>> sleep(10)
+    
     >>> bkp.logout()
     
     '''
     def __init__(self, plate):
         self.plate = plate
-        self.host = config.host
-        self.backupChainPage = config.backupChainPage
-        self.backupPolicyPage = config.backupPolicyPage
-        self.userName = config.userName
-        self.passwd = config.passWD
+        self.host = envConfig.host
+        self.backupChainPage = envConfig.backupChainPage
+        self.backupPolicyPage = envConfig.backupPolicyPage
+        self.userName = envConfig.userName
+        self.passwd = envConfig.passWD
         self.driver = webdriver.Chrome()
         self.chainList = self.getChainList()
         self.policyList = self.getPolicyList()
@@ -64,11 +64,11 @@ class Backup():
         sleep(2)
         
         policyList = []
-        tr = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if tr[0].text == "没有找到匹配的记录": 
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
             return policyList
-        for td in tr:
-            pName = td.find_element_by_xpath('.//td[2]/div').text
+        for tr in trs:
+            pName = tr.find_element_by_xpath('.//td[2]/div').text
             policyList.append(pName) 
         driver.quit()
         return policyList
@@ -144,7 +144,7 @@ class Backup():
         self.policyList.remove(policyName)
         return True
     
-    def policyMountToVolume(self, policyName, volType, volName, all = False):
+    def policyMountToVolume(self, policyName, volName, volType, allVol = False):
         ''' mount policy onto volume, in policy page '''
         assert policyName != None and len(self.policyList) != 0
         
@@ -171,21 +171,69 @@ class Backup():
         driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[1]/button[2]').click()
         sleep(0.5)
         
-        if all :
+        if allVol:
             driver.find_element_by_class_name('backup-disk-select-all').click()
             sleep(0.5)
             driver.find_element_by_xpath("//button[contains(@class,'btn btn-submit btn-primary')]").click()
             sleep(1)
             return True
-        fullName = '%s：%s' %(volType, volName)
-#         print(fullName)
-#         driver.find_element_by_xpath("//span[contains(.,%s)]" %(fullName)))
-        target = driver.find_element_by_xpath("//span[contains(.,'数据盘：ttt')]").text
-        print(target)
         
+        groups = driver.find_elements_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[3]/ul/li')
+        for group in groups:
+            ul = group.find_element_by_xpath('.//ul')
+            lis = ul.find_elements_by_xpath('.//li')
+            for li in lis:
+                diskName = li.find_element_by_xpath('.//div/span[2]').text
+                vol = "%s：%s" %(volType, volName)
+                if vol  != diskName:
+                    continue
+                li.find_element_by_xpath('.//div/label').click()
+                driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
+                sleep(1)
+                return True
+        else:
+            print('volume[%s：%s] is not find in the volume list' %(volType, volName))
+            return False
+    
+    def policyUMountAll(self, policyName):
+        ''' mount policy onto volume, in policy page '''
+        assert policyName != None and len(self.policyList) != 0
+        
+        if policyName not in self.policyList:
+            print('policy[%s] is not in policy list' %(policyName))
+            return False
+        driver = self.driver
+        driver.get(self.plate + self.backupPolicyPage)
+        sleep(2)
+        
+        tr = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if tr[0].text == "没有找到匹配的记录": 
+            print('policy list is empty')
+            return False
+        for td in tr:
+            pName = td.find_element_by_xpath('.//td[2]/div').text
+            if pName == policyName :
+                td.click()
+                sleep(0.5)
+                break
+        else:
+            print('policy[%s] is not find in backup policy page' %(policyName))
+            return False
+        driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[1]/button[2]').click()
+        sleep(0.5)    
+        select = driver.find_element_by_class_name('backup-disk-select-all')
+        if select.text == '全选':
+            select.click()
+            sleep(0.5)
+            select.click()
+            sleep(0.5)
+        elif select.text == '清空':
+            select.click()
+            sleep(0.5)
+        driver.find_element_by_xpath("//button[contains(@class,'btn btn-submit btn-primary')]").click()
         sleep(1)
         return True
-        
+    
     def getChainList(self):
         ''' get backup chain list '''
         driver = webdriver.Chrome()
@@ -202,29 +250,146 @@ class Backup():
         sleep(2)
         
         policyList = []
-        tr = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[1]/div[2]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if tr[0].text == "没有找到匹配的记录": 
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[1]/div[2]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
             return policyList
-        for td in tr:
-            volName = td.find_element_by_xpath('.//td[3]/div').text
+        for tr in trs:
+            volName = tr.find_element_by_xpath('.//td[3]/div').text
             policyList.append(volName) 
         driver.quit()
         return policyList
     
-    def chainMountPolicy(self):
-        pass
+    def chainMountPolicy(self, chainName, policyName):
+        ''' chain mount to policy '''
+        assert chainName != None and policyName != None and len(self.chainList) != 0 and len(self.policyList) != 0
+        assert chainName in self.chainList
+        assert policyName in self.policyList
+        
+        driver = self.driver
+        driver.get(self.plate + self.backupChainPage)
+        sleep(2)
+        
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[1]/div[2]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
+            print('chain list is empty')
+            return False
+        for tr in trs:
+            volName = tr.find_element_by_xpath('.//td[3]/div').text
+            if volName == chainName :
+                tr.click()
+                sleep(0.5)
+                break
+        else:
+            print('chain[%s] is not find in backup chain page' %(chainName))
+            return False
+        driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[1]/div[2]/div/div[1]/button[1]').click()
+        sleep(0.5)
+        driver.find_element_by_xpath('//*[@id="fixselect-1"]/span').click()
+        sleep(0.5)
+        policyList = driver.find_elements_by_xpath('/html/body/div[6]/div/ul/li')
+        for policy in policyList:
+            if policy.text == policyName:
+                policy.click()
+                sleep(0.5)
+                break
+        else:
+            print('policy list is empty')
+            return False
+        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
+        sleep(0.5)
+        return True
     
-    def deleteChain(self):
-        pass
+    def deleteChain(self, chainName):
+        ''' delet backup chain '''
+        assert chainName != None and len(self.chainList) != 0
+        assert chainName in self.chainList
+        
+        driver = self.driver
+        driver.get(self.plate + self.backupChainPage)
+        sleep(2)
+        
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[1]/div[2]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
+            print('chain list is empty')
+            return False
+        for tr in trs:
+            volName = tr.find_element_by_xpath('.//td[3]/div').text
+            if volName == chainName :
+                tr.click()
+                sleep(0.5)
+                break
+        else:
+            print('chain[%s] is not find in backup chain page' %(chainName))
+            return False
+        driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[1]/div[2]/div/div[1]/button[2]').click()
+        sleep(1)
+        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
+        sleep(1)
+        self.chainList.remove(chainName)
+        return True
     
-    def gotoBackupList(self):
-        pass
+    def gotoBackupList(self, chainName):
+        ''' goto  chain list page '''
+        assert chainName != None and len(self.chainList) != 0
+        assert chainName in self.chainList
+        
+        driver = self.driver
+        driver.get(self.plate + self.backupChainPage)
+        sleep(2)
+        
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[1]/div[2]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
+            print('chain list is empty')
+            return False
+        for tr in trs:
+            volName = tr.find_element_by_xpath('.//td[3]/div').text
+            if volName == chainName :
+                tr.click()
+                sleep(0.5)
+                tr.find_element_by_xpath('.//td[3]').click()
+                return True
+        else:
+            print('chain[%s] is not find in backup chain page' %(chainName))
+            return False
     
-    def addPoint(self):
-        pass
+    def addBackupPoint(self, chainName, pointName):
+        ''' add backup point in backup list page '''
+        assert chainName != None and pointName != None
+        
+        if self.gotoBackupList(chainName) == False:
+            return False
+        driver = self.driver
+        driver.refresh()
+        sleep(2)
+        driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div[1]/div/div/div/div[1]/div[1]').click()
+        sleep(0.5)
+        inp = driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[2]/div/input')
+        inp.clear()
+        inp.send_keys(pointName)
+        sleep(0.5)
+        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
+        sleep(1)
+        return True
     
-    def deletePoint(self):
-        pass
+    def deletePoint(self, chainName, pointName):
+        ''' add backup point in backup list page '''
+        assert chainName != None and pointName != None
+        
+        if self.gotoBackupList(chainName) == False:
+            return False
+        driver = self.driver
+        driver.refresh()
+        sleep(2)
+        
+        backuBox = driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div[1]/div/div/div')
+        
+        inp = driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[2]/div/input')
+        inp.clear()
+        inp.send_keys(pointName)
+        sleep(0.5)
+        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
+        sleep(1)
+        return True
     
     def recoverPoint(self, allVolume = True):
         pass

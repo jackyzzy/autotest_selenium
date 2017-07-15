@@ -1,5 +1,6 @@
 
-plate = "http://100.1.22.1"
+ip = '100.1.22.1'
+plate = "http://%s" %(ip)
 host = "/dashboard/host/#host"
 disk = "/dashboard/storage/disk/#disk"
 backupChainPage = "/dashboard/backup/#list"

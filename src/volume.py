@@ -3,7 +3,7 @@ from selenium import webdriver
 from time import sleep
 from random import randint
 import instance
-import config
+import envConfig
 
 class Volume():
     ''' volume test case
@@ -38,11 +38,11 @@ class Volume():
     '''
     def __init__(self, plate):
         self.plate = plate
-        self.host = config.host
-        self.disk = config.disk
-        self.userName = config.userName
-        self.passwd = config.passWD
-        self.volBase = config.volBase
+        self.host = envConfig.host
+        self.disk = envConfig.disk
+        self.userName = envConfig.userName
+        self.passwd = envConfig.passWD
+        self.volBase = envConfig.volBase
         self.volcnt = randint(2,100)
         self.driver = webdriver.Chrome()
         self.volList = self.getVolumeList()
@@ -257,17 +257,18 @@ class Volume():
         sleep(0.5)
         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[2]/div/div/span').click()
         sleep(1)
-        ul = driver.find_elements_by_xpath('/html/body/div[6]/div/ul/li')
-        for li in ul:
+        lis = driver.find_elements_by_xpath('/html/body/div[6]/div/ul/li')
+        for li in lis:
             if li.text == vmName:
                 li.click()
                 sleep(0.5)
-                driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
-                sleep(3)
-                return True
+                break
         else:
             print('vm[%s] is not find in volume mount page' %(volName))                
             return False
+        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
+        sleep(1)
+        return True
     
     def umount(self, volName):
         ''' unmount volume from instance '''
