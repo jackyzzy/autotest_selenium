@@ -714,7 +714,7 @@ class Instance():
             except SEE.NoSuchElementException :
                 print('vm[%s] has no public ip' %(vmName))
                 return False
-            vmcheck = envCheck.Check(pip)
+            vmcheck = envCheck.Check(pip, 'root', 'admin123')
             if vmcheck == None:
                 print('fail to connect vm[%s] and then init vmCheck.' %(vmName))
                 return False

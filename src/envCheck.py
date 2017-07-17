@@ -8,21 +8,22 @@ class Check:
     If the result is small enough to fit in an int, return an int.
     Else return a long.
 
-    >>> host = "100.1.22.130"
+    >>> ip = "100.1.22.1"
+    
+    >>> host = "100.1.22.147"
       
     >>> user = "root"
     
     >>> pwd = "admin123"
     
-    >>> iip = "192.168.0.5"
+    >>> iip = "192.168.0.50"
     
-    >>> ckip = Check(host = '100.1.22.1')
+    >>> ckip = Check(host = host, user = user, pwd = pwd)
     
     b'        inet 192.168.0.11  netmask 255.255.255.0  broadcast 192.168.0.255\\n'
-    >>> ckip.checkInnerIp(host, 22, user, pwd, iip)
-    True
+   
     
-    >>> ckip.shutdownInner(host, 22, user, pwd)
+    >>> ckip.readLine(host, user, pwd)
     True
     """        
     def __init__(self, host = '100.1.22.1', user = 'root', pwd = 'Admin12345sangfornetwork'):
@@ -134,7 +135,7 @@ class Check:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, 22, user, pwd)
-            ret = ssh.exec_command("echo %s > file" %(line, file))
+            ret = ssh.exec_command("echo %s > %s" %(line, file))
             ssh.close()
             out = ret[1].read()
             error = ret[2].read()
@@ -146,11 +147,14 @@ class Check:
             return False
     
     def readLine(self, ip, user, pwd, file = 'aaa.txt'):
+        out = ''
+        error = ''
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, 22, user, pwd)
             ret = ssh.exec_command("cat aaa.txt")
+            sleep(0.5)
             ssh.close()
             out = ret[1].read()
             error = ret[2].read()
@@ -158,7 +162,7 @@ class Check:
                 return None
             return out
         except:
-            print('fail to write into file')
+            print('fail to read from file[%s], out = [%s], error = [%s]' %(file, out, error))
             return None
     
 if __name__ == "__main__":

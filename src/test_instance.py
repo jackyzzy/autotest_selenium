@@ -135,7 +135,7 @@ class TestInstance(unittest.TestCase):
                 
         #TODO: check ping
         '''after shutdown inner, check status in page'''
-        self.assertTrue(self.instance.shutdownInner(vm), 'fail to close vm[%s] in %s' %(vm, curFunc))
+        self.assertTrue(self.instance.shutdownInner(vm), 'fail to shutdownInner vm[%s] in %s' %(vm, curFunc))
         sleep(600)
         self.assertEqual(self.instance.getInstanceStatus(vm), '已关机', "instance[%s] is not closed, after shutdownInner in %s" %(vm, curFunc))
         
@@ -280,8 +280,8 @@ class TestInstance(unittest.TestCase):
             sleep(60)
         if self.instance.getInstanceStatus(vm) != '运行中':
             self.assertTrue(self.instance.startInstance(vm), 'fail to start instance[%s] in %s' %(vm, curFunc))
-            sleep(100)
-        sleep(60)
+            sleep(120)
+            
         self.assertTrue(self.instance.vmPingHost(vm), 'cannot ping from instance[%s] to host[%s] in %s' %(vm, envConfig.ip, curFunc))
     
     def test_21_write_read_file(self):
@@ -296,8 +296,9 @@ class TestInstance(unittest.TestCase):
         
         file = 'aaa.txt'
         contain = 'bbbbbbbb'
-        
+        result = b'bbbbbbbb\n'
+#         'b\'%s\n\'' %(contain)
         self.assertTrue(self.instance.vmWriteLine(vm, contain, file), 'fail to write line[\'%s\'] onto instance[%s] in %s' %(contain, vm, curFunc))
-        self.assertEqual(self.instance.vmReadLine(vm, file), contain, 'read is not equal with write on instance[%s] in %s' %(vm, curFunc))
+        self.assertEqual(self.instance.vmReadLine(vm, file), result, 'read is not equal with write on instance[%s] in %s' %(vm, curFunc))
     
     

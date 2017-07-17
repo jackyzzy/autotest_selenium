@@ -14,5 +14,7 @@ if __name__ == '__main__':
     suit = unittest.TestSuite()
     suit.addTest(Test_my('test_01'))
     suit.addTest(Test_my('test_02'))
+#     suit.addTest(test_instance.TestInstance('test_20_connect_outer'))
+    suit.addTest(test_instance.TestInstance('test_05_start_powoff_restart_inner'))
     runer = unittest.TextTestRunner()
     runer.run(suit)

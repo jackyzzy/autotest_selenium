@@ -1,3 +1,126 @@
+
+
+    instance
+    >>> pp = "http://100.1.22.1"
+            
+    >>> inc = Instance(pp) 
+                
+    >>> inc.login()
+    
+    >>> vm = inc.createInstance('bbb', 'cen')
+    bbb
+    >>> sleep(60)
+    
+    >>> inc.connect(vm)
+    public ip connected !
+    True
+    >>> sleep(3)
+    
+    >>> inc.shutdownOuter(vm)
+    True
+    >>> sleep(100)
+    
+    >>> inc.mountVolume(vm, 'vvv1')
+    True
+    >>> sleep(10)
+    
+    >>> inc.mountVolume(vm, 'vvv a')
+    True
+    >>> sleep(10)
+    
+    >>> inc.startInstance(vm)
+    True
+    >>> sleep(100)
+    
+    >>> inc.connect(vm)
+    public ip connected !
+    True
+    >>> inc.createBackup(vm, True)
+    True
+    >>> sleep(20)
+    
+    >>> inc.shutdownOuter(vm)
+    True
+    >>> sleep(60)
+    
+    >>> inc.umountVolume(vm, 'vvv1')
+    True
+    >>> sleep(10)
+    
+    >>> inc.umountVolume(vm, 'vvv a')
+    True
+    >>> sleep(10)
+    
+    >>> inc.startInstance(vm)
+    True
+    >>> sleep(60)
+    
+    >>> inc.restartOuter(vm)
+    True
+    >>> sleep(100)
+    
+    >>> inc.connect(vm)
+    public ip connected !
+    True
+    >>> sleep(3)
+    
+    >>> inc.shutdownInner(vm)
+    shutdown -h 0
+    b''
+    True
+    >>> sleep(300)
+    
+    >>> inc.startInstance(vm)
+    True
+    >>> sleep(100)
+    
+    >>> inc.connect(vm)
+    public ip connected !
+    True
+    >>> inc.restartInner(vm)
+    True
+    >>> sleep(300)
+    
+    >>> inc.connect(vm)
+    public ip connected !
+    True
+    >>> inc.deleteInstance(vm)
+    True
+    >>> inc.logout()
+        
+
+    volume
+    >>> pp = "http://100.86.0.1"
+    
+    >>> vol = 'vvv3'
+    
+    >>> disk = Volume(pp)
+    
+    >>> sleep(1)
+    
+    >>> disk.login()
+        
+    >>> disk.createVolume(vol) 
+    True
+    >>> disk.mountVolumeToInstance(vol, 'test87') 
+    True
+    >>> disk.getVolumeStatus(vol)
+    '正在使用'
+    >>> disk.createBackup(vol)
+    True
+    >>> disk.umount(vol)
+    True
+    >>> disk.expandVolume(vol, 10)
+    True
+    >>> disk.getVolumeStatus(vol)
+    '未挂载'
+    >>> disk.deleteVolume(vol)
+    True
+    >>> disk.logout()
+    
+
+
+    backup
     >>> pp = "http://100.1.22.1"
     
     >>> vol = 'vvv3'
@@ -11,3 +134,27 @@
     >>> print(pp.policyList)
     
     >>> bkp.createPolicy("sdlkfj", "sdkfj")
+
+    
+    check
+    >>> host = "172.83.1.92"
+      
+    >>> user = "root"
+    
+    >>> pwd = "admin123"
+    
+    >>> iip = "192.168.0.5"
+    
+    >>> ckip = Check(host = '172.83.0.1')
+    
+    b'        inet 192.168.0.11  netmask 255.255.255.0  broadcast 192.168.0.255\\n'
+    >>> ckip.check_ip(host, 22, user, pwd, iip)
+    True
+    >>> ckip.ping(host)
+    True
+    >>> ckip.restartInner(host, 22, user, pwd)
+    True
+    >>> sleep(200)
+    
+    >>> ckip.shutdown_inner(host, 22, user, pwd)
+    True
