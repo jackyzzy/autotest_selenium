@@ -120,6 +120,7 @@ class Check:
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, port, user, pwd)
             ret = ssh.exec_command("shutdown -h 0")
+            sleep(0.5)
             ssh.close()
             out = ret[1].read()
             error = ret[2].read()
@@ -127,7 +128,7 @@ class Check:
                 return False
             return True
         except:
-            print('fail to shutdown')
+            print('fail to shutdown in shutdownInner')
             return False
         
     def writeLine(self, ip, user, pwd, line = 'aaaaaaaaaaa', file = 'aaa.txt'):
