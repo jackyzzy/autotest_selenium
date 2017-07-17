@@ -792,7 +792,17 @@ class Instance():
         ''' config sub net into instance '''
         #TODO: fix me
         pass
-
+    
+    def clearInstance(self):
+        pass
+    def cleareVolume(self):
+        pass
+    def clearBackupList(self):
+        pass
+    def clearBackupPolicy(self):
+        pass
+    def clearPublicIp(self):
+        pass
 
 if __name__ == "__main__":
     import doctest
