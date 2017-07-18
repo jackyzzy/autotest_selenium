@@ -7,9 +7,7 @@ import envConfig
 
 class Volume():
     ''' volume test case
-    >>> pp = "http://100.86.0.1"
-    
-    >>> vol = 'vvv3'
+    >>> pp = "http://100.1.22.1"
     
     >>> disk = Volume(pp)
     
@@ -17,21 +15,7 @@ class Volume():
     
     >>> disk.login()
         
-    >>> disk.createVolume(vol) 
-    True
-    >>> disk.mountVolumeToInstance(vol, 'test87') 
-    True
-    >>> disk.getVolumeStatus(vol)
-    '正在使用'
-    >>> disk.createBackup(vol)
-    True
-    >>> disk.umount(vol)
-    True
-    >>> disk.expandVolume(vol, 10)
-    True
-    >>> disk.getVolumeStatus(vol)
-    '未挂载'
-    >>> disk.deleteVolume(vol)
+    >>> disk.clearVolume()
     True
     >>> disk.logout()
     
@@ -81,11 +65,11 @@ class Volume():
         
         driver.get(self.plate + self.disk)
         sleep(2)
-        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if rd[0].text == "没有找到匹配的记录": 
+        trs = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
             return volList
-        for td in rd:
-            volName = td.find_element_by_xpath('.//td[3]/div').text
+        for tr in trs:
+            volName = tr.find_element_by_xpath('.//td[3]/div').text
             volList.append(volName) 
         driver.quit()
         return volList
@@ -99,15 +83,15 @@ class Volume():
         driver.get(self.plate + self.disk)
         sleep(2)
 
-        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if rd[0].text == "没有找到匹配的记录":
+        trs = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录":
             print('volume list is empty')
             return None
-        for td in rd:
-            target = td.find_element_by_xpath('.//td[3]/div').text
+        for tr in trs:
+            target = tr.find_element_by_xpath('.//td[3]/div').text
             if target != volName:
                 continue
-            status = td.find_element_by_xpath(".//td[2]/div").get_attribute('title')
+            status = tr.find_element_by_xpath(".//td[2]/div").get_attribute('title')
             return status
         else:
             return None
@@ -155,19 +139,19 @@ class Volume():
         driver.get(self.plate + self.disk)
         sleep(2)
 
-        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if rd[0].text == "没有找到匹配的记录":
+        trs = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录":
             print('volume list is empty')
             return False
-        for td in rd:
-            target = td.find_element_by_xpath('.//td[3]/div').text
+        for tr in trs:
+            target = tr.find_element_by_xpath('.//td[3]/div').text
             if target != volName:
                 continue
-            status = td.find_element_by_xpath(".//td[2]/div").get_attribute('title')
+            status = tr.find_element_by_xpath(".//td[2]/div").get_attribute('title')
             if status != '未挂载':
                 print ('volume status is still in use. status is %s' %(status))
                 return False
-            td.find_element_by_xpath(".//td[1]/label").click()
+            tr.find_element_by_xpath(".//td[1]/label").click()
             sleep(0.5)
             break
         else:
@@ -191,15 +175,15 @@ class Volume():
         driver.get(self.plate + self.disk)
         sleep(2)
 
-        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if rd[0].text == "没有找到匹配的记录": 
+        trs = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
             print('volume list is empty')
             return False
-        for td in rd:
-            target = td.find_element_by_xpath('.//td[3]/div').text
+        for tr in trs:
+            target = tr.find_element_by_xpath('.//td[3]/div').text
             if target != volName:
                 continue
-            td.find_element_by_xpath(".//td[1]/label").click()
+            tr.find_element_by_xpath(".//td[1]/label").click()
             sleep(0.5)
             break
         else:
@@ -235,19 +219,19 @@ class Volume():
         driver.get(self.plate + self.disk)
         sleep(2)
         
-        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if rd[0].text == "没有找到匹配的记录":
+        trs = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录":
             print('volume list is empty')
             return False
-        for td in rd:
-            target = td.find_element_by_xpath('.//td[3]/div').text
+        for tr in trs:
+            target = tr.find_element_by_xpath('.//td[3]/div').text
             if target != volName:
                 continue
-            status = td.find_element_by_xpath(".//td[2]/div").get_attribute('title')
+            status = tr.find_element_by_xpath(".//td[2]/div").get_attribute('title')
             if status != '未挂载':
                 print ('volume status no in use. status is %s' %(status))
                 return False   
-            td.find_element_by_xpath(".//td[1]/label").click()
+            tr.find_element_by_xpath(".//td[1]/label").click()
             sleep(0.5)
             break
         else:
@@ -279,24 +263,24 @@ class Volume():
         driver.get(self.plate + self.disk)
         sleep(2)
 
-        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if rd[0].text == "没有找到匹配的记录":
+        trs = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录":
             print('volume list is empty')
             return False
-        for td in rd:
-            target = td.find_element_by_xpath('.//td[3]/div').text
+        for tr in trs:
+            target = tr.find_element_by_xpath('.//td[3]/div').text
             if target != volName:
                 continue
-            status = td.find_element_by_xpath(".//td[2]/div").get_attribute('title')
+            status = tr.find_element_by_xpath(".//td[2]/div").get_attribute('title')
             if status != '正在使用':
                 print ('volume status no in use. status is %s' %(status))
                 return False
-            td.find_element_by_xpath(".//td[1]/label").click()
+            tr.find_element_by_xpath(".//td[1]/label").click()
             sleep(0.5)
             
             ''' check if the instance is still running '''
             inc = instance.Instance(self.plate)
-            vm = td.find_element_by_xpath(".//td[8]/div").text
+            vm = tr.find_element_by_xpath(".//td[8]/div").text
             inc.vmlist.append(vm)
             inc.login()
             if inc.getInstanceStatus(vm) != '已关机':
@@ -325,19 +309,19 @@ class Volume():
         driver.get(self.plate + self.disk)
         sleep(2)
 
-        rd = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if rd[0].text == "没有找到匹配的记录":
+        trs = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录":
             print('volume list is empty')
             return False
-        for td in rd:
-            target = td.find_element_by_xpath('.//td[3]/div').text
+        for tr in trs:
+            target = tr.find_element_by_xpath('.//td[3]/div').text
             if target != volName:
                 continue
-            status = td.find_element_by_xpath(".//td[2]/div").get_attribute('title')
+            status = tr.find_element_by_xpath(".//td[2]/div").get_attribute('title')
             if status != '正在使用':
                 print ('volume status no in use. status is %s' %(status))
                 return False
-            td.find_element_by_xpath(".//td[1]/label").click()
+            tr.find_element_by_xpath(".//td[1]/label").click()
             sleep(0.5)
             break
         else:
@@ -356,6 +340,28 @@ class Volume():
         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
         sleep(1)
         return True
+    
+    def clearVolume(self):
+        ''' clear volume '''
+        driver = self.driver
+        driver.get(self.plate + self.disk)
+        sleep(2)
+
+        trs = driver.find_elements_by_xpath('//*[@id="content-body"]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
+            return True
+        for tr in trs:
+            tr.find_element_by_xpath(".//td[1]/label").click()
+            sleep(0.5)
+        else:
+            driver.find_element_by_xpath('//*[@id="storage-disk-more-action"]').click()
+            sleep(0.5)
+            driver.find_element_by_xpath('//*[@id="content-body"]/div/div[1]/div[1]/ul/li[5]/button').click()
+            sleep(0.5)
+            driver.find_element_by_xpath('//*[@id="common-widget-messagebox-checkbox-ok"]').click()
+            sleep(0.5)
+            self.volList.clear()
+            return True
     
     def mountBackupPolicy(self):
         pass

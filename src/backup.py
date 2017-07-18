@@ -13,7 +13,9 @@ class Backup():
     
     >>> bkp.login()
     
-    >>> bkp.addBackupPoint('aaa-data-58588413', 'ppp')
+    >>> bkp.clearBackupChain()
+    True
+    >>> bkp.clearBackupPolicy()
     True
     >>> sleep(10)
     
@@ -47,6 +49,46 @@ class Backup():
         driver = self.driver
         ''' clear env '''
         driver.quit()
+
+    def clearBackupChain(self):
+        ''' clear backup chain '''
+        driver = self.driver
+        driver.get(self.plate + self.backupChainPage)
+        sleep(2)
+        
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[1]/div[2]/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录":
+            return True
+        for tr in trs:
+            tr.find_element_by_xpath('.//td[1]/label').click()
+            sleep(0.5)
+        else:
+            driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[1]/div[2]/div/div[1]/button[2]').click()
+            sleep(0.5)
+            driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
+            sleep(0.5)
+            self.chainList.clear()
+            return True
+        
+    def clearBackupPolicy(self):
+        ''' clear policy '''
+        driver = self.driver
+        driver.get(self.plate + self.backupPolicyPage)
+        sleep(2)
+        
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录":
+            return True
+        for tr in trs:
+            tr.find_element_by_xpath('.//td[1]/label').click()
+            sleep(0.5)
+        else:
+            driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[1]/button[4]').click()
+            sleep(0.5)
+            driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
+            sleep(0.5)
+            self.policyList.clear()
+            return True
 
     def getPolicyList(self):
         ''' get pollicy list '''
@@ -124,14 +166,14 @@ class Backup():
         driver.get(self.plate + self.backupPolicyPage)
         sleep(2)
         
-        tr = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if tr[0].text == "没有找到匹配的记录": 
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
             print('policy list is empty')
             return False
-        for td in tr:
-            pName = td.find_element_by_xpath('.//td[2]/div').text
+        for tr in trs:
+            pName = tr.find_element_by_xpath('.//td[2]/div').text
             if pName == policyName :
-                td.click()
+                tr.click()
                 sleep(0.5)
                 break
         else:
@@ -155,14 +197,14 @@ class Backup():
         driver.get(self.plate + self.backupPolicyPage)
         sleep(2)
         
-        tr = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if tr[0].text == "没有找到匹配的记录": 
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
             print('policy list is empty')
             return False
-        for td in tr:
-            pName = td.find_element_by_xpath('.//td[2]/div').text
+        for tr in trs:
+            pName = tr.find_element_by_xpath('.//td[2]/div').text
             if pName == policyName :
-                td.click()
+                tr.click()
                 sleep(0.5)
                 break
         else:
@@ -206,14 +248,14 @@ class Backup():
         driver.get(self.plate + self.backupPolicyPage)
         sleep(2)
         
-        tr = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if tr[0].text == "没有找到匹配的记录": 
+        trs = driver.find_elements_by_xpath('/html/body/div[1]/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
+        if trs[0].text == "没有找到匹配的记录": 
             print('policy list is empty')
             return False
-        for td in tr:
-            pName = td.find_element_by_xpath('.//td[2]/div').text
+        for tr in trs:
+            pName = tr.find_element_by_xpath('.//td[2]/div').text
             if pName == policyName :
-                td.click()
+                tr.click()
                 sleep(0.5)
                 break
         else:

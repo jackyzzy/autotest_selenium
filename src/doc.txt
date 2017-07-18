@@ -105,7 +105,7 @@
     >>> disk.mountVolumeToInstance(vol, 'test87') 
     True
     >>> disk.getVolumeStatus(vol)
-    'ÕýÔÚÊ¹ÓÃ'
+    'æ­£åœ¨ä½¿ç”¨'
     >>> disk.createBackup(vol)
     True
     >>> disk.umount(vol)
@@ -113,7 +113,7 @@
     >>> disk.expandVolume(vol, 10)
     True
     >>> disk.getVolumeStatus(vol)
-    'Î´¹ÒÔØ'
+    'æœªæŒ‚è½½'
     >>> disk.deleteVolume(vol)
     True
     >>> disk.logout()
