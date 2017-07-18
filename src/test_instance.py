@@ -185,7 +185,7 @@ class TestInstance(unittest.TestCase):
         sleep(60)
         #TODO: check ping   
         
-    def test_12_create_backup(self):
+    def test_13_create_backup(self):
         curFunc = self.getFuncName()
         vmname = 'linux'
         if vmname not in self.instance.vmlist:
@@ -195,7 +195,7 @@ class TestInstance(unittest.TestCase):
         self.assertTrue(self.instance.createBackup(vmname, 'mannal1'), 'fail to create instance[%s]system volume backup in %s' %(vmname, curFunc))
         sleep(60)
         
-    def test_13_create_all_backup(self):
+    def test_14_create_all_backup(self):
         curFunc = self.getFuncName()
         vmname = 'linux'
         if vmname not in self.instance.vmlist:
@@ -205,7 +205,7 @@ class TestInstance(unittest.TestCase):
         self.assertTrue(self.instance.createBackup(vmname, 'mannal2', True), 'fail to create instance[%s] system volume backup in %s' %(vmname, curFunc))
         sleep(60)
     
-    def test_14_umount_ultra_high_from_instance(self):
+    def test_15_umount_ultra_high_from_instance(self):
         curFunc = self.getFuncName()
         vmname = 'linux'
         ultrax_volume = 'test11_ultrax'
@@ -229,7 +229,7 @@ class TestInstance(unittest.TestCase):
         sleep(60)
         #TODO: check ping
     
-    def test_15_full_volume(self):
+    def test_16_full_volume(self):
         curFunc = self.getFuncName()
         vm = self.instance.createInstance(image = 'cen')
         self.assertIsNotNone(vm, 'fail to create vm in %s' %(curFunc))
