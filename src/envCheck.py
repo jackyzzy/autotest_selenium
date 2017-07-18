@@ -10,20 +10,18 @@ class Check:
 
     >>> ip = "100.1.22.1"
     
-    >>> host = "100.1.22.147"
+    >>> host = "100.1.22.170"
       
     >>> user = "root"
     
     >>> pwd = "admin123"
     
-    >>> iip = "192.168.0.50"
+    >>> iip = "192.168.0.71"
     
-    >>> ckip = Check(host = host, user = user, pwd = pwd)
+    >>> ckip = Check(host = ip, user = 'root', pwd = 'Admin12345sangfornetwork')
     
     b'        inet 192.168.0.11  netmask 255.255.255.0  broadcast 192.168.0.255\\n'
-   
-    
-    >>> ckip.readLine(host, user, pwd)
+    >>> ckip.shutdownInner(host, 22, user, pwd)
     True
     """        
     def __init__(self, host = '100.1.22.1', user = 'root', pwd = 'Admin12345sangfornetwork'):
@@ -38,13 +36,13 @@ class Check:
                 "chmod +x ping.sh"
                 ]
         
+        stdout = []
+        stderr = []
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(self.host, self.port, self.user, self.pwd)
             
-            stdout = []
-            stderr = []
             for cmd in cmds: 
                 ret = ssh.exec_command(cmd)
                 out = ret[1].read()
@@ -57,7 +55,7 @@ class Check:
             if len(stderr) != 0 or len(stdout) != 0:
                 return None
         except:
-            print('init Check object, fail to create ping.sh in %s' %(host))
+            print('init Check object, fail to create ping.sh in %s, out = %s, error = %s' %(host, stdout, stderr))
             return None
     
     def ping(self, ip):
@@ -119,13 +117,14 @@ class Check:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, port, user, pwd)
-            ret = ssh.exec_command("shutdown -h 0")
-            sleep(0.5)
+            ssh.exec_command("shutdown -h 0")
             ssh.close()
-            out = ret[1].read()
-            error = ret[2].read()
-            if out != b'' or (error != b'' and "Shutdown scheduled" not in error):
-                return False
+#             ret = ssh.exec_command("shutdown -h 0")
+#             ssh.close()
+#             out = ret[1].read()
+#             error = ret[2].read()
+#             if out != b'' or (error != b'' and "Shutdown scheduled" not in error):
+#                 return False
             return True
         except:
             print('fail to shutdown in shutdownInner')

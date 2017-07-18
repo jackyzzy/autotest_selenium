@@ -131,7 +131,7 @@ class TestInstance(unittest.TestCase):
         curFunc = self.getFuncName()
         vm = self.instance.createInstance(image = 'cen')
         self.assertIsNotNone(vm, 'create vm fail in %s' %(curFunc))
-        sleep(60)
+        sleep(100)
                 
         #TODO: check ping
         '''after shutdown inner, check status in page'''
