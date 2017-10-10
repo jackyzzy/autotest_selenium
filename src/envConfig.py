@@ -15,3 +15,5 @@ vmBase = "autoinstance"
 vmPWD = "admin123"
 
 volBase = "autovolume"
+
+instanceBase = "Mysql57_instance"

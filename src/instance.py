@@ -10,19 +10,17 @@ import volume
 
 class Instance():
     '''
-    >>> pp = "http://100.1.22.1"
+    >>> pp = "http://100.86.0.1"
             
     >>> inc = Instance(pp) 
                 
     >>> inc.login()
-    
-    >>> inc.clearPublicIp()
-    True
+        
     >>> inc.logout()
         
     '''
     def __init__(self, plate):
-        self.plate = envConfig.plate
+        self.plate = plate
         self.host = '/dashboard/host/#host'
         self.disk = '/dashboard/storage/disk/#disk'
         self.userName = envConfig.userName
