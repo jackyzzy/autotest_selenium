@@ -233,7 +233,6 @@ class RDS():
         driver.find_element_by_xpath('/html/body/div[1]/div[3]/div[2]/div/div/div/div/div[1]/div/button[2]').click()
         sleep(1)
         
-        
         fm = driver.find_element_by_class_name('dialog-vertical-container')
         fm.find_element_by_xpath('.//div[2]/div/div[2]/div[1]/div/form/div[1]/div/input').clear()
         sleep(0.5)
