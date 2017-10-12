@@ -6,7 +6,7 @@ import envConfig
 
 class RDS():
     ''' rds db test case
-    >>> pp = "http://100.86.0.1"
+    >>> pp = "http://100.1.22.1"
     
     >>> db = RDS(pp)
     
@@ -82,7 +82,9 @@ class RDS():
         driver.get(self.plate + self.RDSPage)
         sleep(2)
         trs = driver.find_elements_by_xpath('/html/body/div[1]/div[3]/div[2]/div/div/div/div/div[2]/div[1]/div[2]/div[2]/table/tbody/tr')
-        if len(trs) == 0:
+        if len(trs) == 0 :
+            return RDSList
+        if trs[0].find_element_by_xpath('.//td').text == '没有找到匹配的记录':
             return RDSList
         for tr in trs:
             instanceName = tr.find_element_by_xpath('.//td[3]/div/a').text
@@ -231,15 +233,27 @@ class RDS():
         driver.find_element_by_xpath('/html/body/div[1]/div[3]/div[2]/div/div/div/div/div[1]/div/button[2]').click()
         sleep(1)
         
-        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[1]/div/input').clear()
+        
+        fm = driver.find_element_by_class_name('dialog-vertical-container')
+        fm.find_element_by_xpath('.//div[2]/div/div[2]/div[1]/div/form/div[1]/div/input').clear()
         sleep(0.5)
-        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[1]/div/input').send_keys(newPW)
+        fm.find_element_by_xpath('.//div[2]/div/div[2]/div[1]/div/form/div[1]/div/input').send_keys(newPW)
         sleep(1)
         
-        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[2]/div/input').clear()
+        fm.find_element_by_xpath('.//div[2]/div/div[2]/div[1]/div/form/div[2]/div/input').clear()
         sleep(0.5)
-        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[2]/div/input').send_keys(newPW)
+        fm.find_element_by_xpath('.//div[2]/div/div[2]/div[1]/div/form/div[2]/div/input').send_keys(newPW)
         sleep(1)
+        
+#         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[1]/div/input').clear()
+#         sleep(0.5)
+#         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[1]/div/input').send_keys(newPW)
+#         sleep(1)
+#         
+#         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[2]/div/input').clear()
+#         sleep(0.5)
+#         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[1]/div/form/div[2]/div/input').send_keys(newPW)
+#         sleep(1)
         
         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
         sleep(1)
@@ -259,3 +273,4 @@ class RDS():
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+    
