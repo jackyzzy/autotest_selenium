@@ -1,5 +1,6 @@
 import unittest
 import test_instance
+import test_rds
 
 
 def initInstanceSuit():    
@@ -20,11 +21,19 @@ def initInstanceSuit():
     instanceSuit.addTest(test_instance.TestInstance('test_21_write_read_file'))
     return instanceSuit
 
+def initRDSSuit():
+    rdsSuit = unittest.TestSuite()
+    rdsSuit.addTest(test_rds.TestRDS('test_00_create_rds'))
+    rdsSuit.addTest(test_rds.TestRDS('test_01_create_rename_delete'))
+    rdsSuit.addTest(test_rds.TestRDS('test_02_create_changpw_delete'))
+    rdsSuit.addTest(test_rds.TestRDS('test_03_create_delete'))
+    rdsSuit.addTest(test_rds.TestRDS('test_04_create_clear'))
+    return rdsSuit
 
 if __name__ == '__main__':
     suit = unittest.TestSuite()
     
-    suit.addTest(initInstanceSuit())
+    suit.addTest(initRDSSuit())
 
     runer = unittest.TextTestRunner()
     runer.run(suit)

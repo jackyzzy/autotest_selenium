@@ -8,7 +8,7 @@ backupPolicyPage = "/dashboard/backup/#policy"
 publicIP = "/dashboard/network/public_ip/#public_ip"
 RDSPage = "/dashboard/clouddb/#instance"
 
-userName = "zzy@sangfor.com"
+userName = "autotest@sangfor.com"
 passWD = "Admin12345"
 
 vmBase = "autoinstance"

@@ -13,11 +13,11 @@ class RDS():
     >>> db.login()
     
     >>> db.createRDS('aaa')
-    
+    'aaa'
     >>> sleep(200)
     
     >>> db.createRDS('bbb')
-    
+    'bbb'
     >>> sleep(200)
     
     >>> db.renameRDS('aaa', 'ccc')
@@ -95,7 +95,7 @@ class RDS():
             sleep(0.5)
         return RDSList
     
-    def createRDS(self, instanceName = None, instancePW = 'admin123'):
+    def createRDS(self, rdsName = None, instancePW = 'admin123'):
         driver = self.driver
         driver.get(self.plate + self.RDSPage)
         sleep(2)
@@ -128,11 +128,11 @@ class RDS():
         sleep(1)
                 
         # input instance name
-        if not instanceName:
-            instanceName = self.instanceBase + str(self.instanceCNT)
+        if not rdsName:
+            rdsName = self.instanceBase + str(self.instanceCNT)
         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[2]/div/div[1]/div/div/div[2]/form/div[1]/div/input').clear()
         sleep(0.5)
-        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[2]/div/div[1]/div/div/div[2]/form/div[1]/div/input').send_keys(instanceName)
+        driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[2]/div[2]/div/div[1]/div/div/div[2]/form/div[1]/div/input').send_keys(rdsName)
         sleep(0.5)
         
         # input password
@@ -149,7 +149,7 @@ class RDS():
         
         # submit create
         if not driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[2]').is_enabled():
-            print("fail to create RDS instanc[%s]" % (instanceName))
+            print("fail to create RDS instanc[%s]" % (rdsName))
             return False
 
         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[2]').click()
@@ -162,11 +162,12 @@ class RDS():
             if not bts[0].text == '关闭':
                 continue
             if bts[0].is_enabled():
-                print("fail to create RDS instance[%s], no quota left" %(instanceName))            
+                print("fail to create RDS instance[%s], no quota left" %(rdsName))            
                 return False
         else:
-            self.RDSList.append(instanceName)
+            self.RDSList.append(rdsName)
             self.instanceCNT = self.instanceCNT + 1
+            return rdsName
         
     def deleteRDS(self, instanceName):
         driver = self.driver
