@@ -28,7 +28,9 @@ class RDS():
     
     >>> sleep(10)
     
-    >>> db.clearRDS()
+    >>> db.deleteRDS('bbb')
+    
+    >>> db.deleteRDS('ccc')
     
     >>> db.logout()
     
@@ -213,6 +215,8 @@ class RDS():
 
         driver.find_element_by_xpath('/html/body/div[5]/div/div[2]/div/div[3]/div/div/button[1]').click()
         sleep(1)
+        self.RDSList.remove(RDSName)
+        self.RDSList.append(newName)
     
     def changePW(self, RDSName, newPW):
         driver = self.driver
